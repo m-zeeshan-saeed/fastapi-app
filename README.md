@@ -33,14 +33,14 @@ cd fastapi-app
 ### 📁 Project Structure
 
 - app/
-  ├── main.py
-  ├── blogs/
-  ├── models.py
-  ├── schemas.py
-  └── ...
+- ├── main.py
+- ├── blogs/
+- ├── models.py
+- ├── schemas.py
+- └── ...
 - frontend/
-  ├── nextjs-app/
-  └── ...
+- ├── nextjs-app/
+- └── ...
 - Dockerfile
 - docker-compose.yml
 - README.md
