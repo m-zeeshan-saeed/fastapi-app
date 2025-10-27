@@ -16,21 +16,21 @@ git clone https://github.com/m-zeeshan-saeed/fastapi-app.git
 cd fastapi-app
 ```
 
-#### 2️⃣ Create virtual environment
+### 2️⃣ Create virtual environment
 
 - python -m venv venv
 - source venv/bin/activate # macOS/Linux
 - venv\Scripts\activate # Windows
 
-##### 3️⃣ Install dependencies
+### 3️⃣ Install dependencies
 
 - pip install -r requirements.txt
 
-###### 4️⃣ Run with Docker
+### 4️⃣ Run with Docker
 
 - docker compose up --build
 
-###### 📁 Project Structure
+### 📁 Project Structure
 
 - app/
   ├── main.py
@@ -45,12 +45,12 @@ cd fastapi-app
 - docker-compose.yml
 - README.md
 
-#### 🧠 Author
+### 🧠 Author
 
 - Zeeshan Saeed
 - 📧 zeeshansheikh0313@gmail.com
 - 🌐 https://github.com/m-zeeshan-saeed
 
-#### 📄 License
+### 📄 License
 
 - This project is licensed under the MIT License
