@@ -43,21 +43,16 @@ def create_access_token(username: str, user_id: int, expire_delta: timedelta):
     encode.update({'exp': expires})
     return jwt.encode(encode,SECRET_KEY,algorithm=ALGORITHM)
 
-MAX_PASSWORD_LENGTH = 72
+
 
 @router.post("/",status_code=status.HTTP_201_CREATED)
 async def create_user(db: db_dependency, create_user_request: UserCreateRequest):
-     if len(create_user_request.password) > MAX_PASSWORD_LENGTH:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password too long (max 72 characters)"
-        )
-     create_user_model = User(
+    create_user_model = User(
         username = create_user_request.username,
         hashed_password = bcrypt_context.hash(create_user_request.password)
     )
-     db.add(create_user_model)
-     db.commit()
+    db.add(create_user_model)
+    db.commit()
 
 
 @router.post('/token',response_model=Token)
