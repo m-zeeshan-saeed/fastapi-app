@@ -1,15 +1,29 @@
 from typing import Union
-
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
+from .routers import auth
+from .database import Base, engine
+
+
 
 app = FastAPI()
 
 
+Base.metadata.create_all(bind=engine)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials= True,
+    allow_methods=['*'],
+    allow_headers=['*']
+)
+
+
 @app.get("/")
-def read_root():
-    return {"Hello": "zeeshan"}
+def health_check():
+    return 'Health Check Complete'
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+app.include_router(auth.router)
