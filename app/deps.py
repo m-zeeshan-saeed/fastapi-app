@@ -8,12 +8,10 @@ from dotenv import load_dotenv
 import os
 from .database import sessionLocal
 
-
 load_dotenv()
 
 SECRET_KEY = os.getenv('AUTH_SECRET_KEY')
 ALGORITHM = os.getenv("AUTH_ALGORITHM")
-
 
 def get_db():
     db = sessionLocal()
@@ -26,17 +24,31 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
-oauth2_bearer_dependency = Annotated[str, Depends(oauth2_bearer)]
 
-
-async def get_current_user(token: oauth2_bearer_dependency):
+async def get_current_user(token: str = Depends(oauth2_bearer), db: db_dependency = None):
     try:
-        payload = jwt.decode(token,SECRET_KEY,algorithms=[ALGORITHM])
+        if db is None:
+            # If no db session is provided, create a temporary one
+            temp_db = sessionLocal()
+            try:
+                return await get_current_user(token, temp_db)
+            finally:
+                temp_db.close()
+
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get('sub')
         user_id: int = payload.get('id')
+
         if username is None or user_id is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Could not validate user")
-        return {"username": username, "user_id": user_id}
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate user")
+
+        # Verify user exists in database
+        from app.models import User
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+
+        return {"username": username, "id": user_id}
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate user")
 

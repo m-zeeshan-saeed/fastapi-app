@@ -9,14 +9,12 @@ import os
 from app.models import User
 from app.deps import db_dependency, bcrypt_context
 
-
 load_dotenv()
 
 router = APIRouter(
     prefix='/auth',
     tags=['auth']
 )
-
 
 SECRET_KEY = os.getenv("AUTH_SECRET_KEY")
 ALGORITHM = os.getenv("AUTH_ALGORITHM")
@@ -39,27 +37,34 @@ def authenticate_user(username: str, password: str, db):
 
 def create_access_token(username: str, user_id: int, expire_delta: timedelta):
     encode = {'sub': username, "id": user_id}
-    expires = datetime.now(timezone.utc)+ expire_delta
+    expires = datetime.now(timezone.utc) + expire_delta
     encode.update({'exp': expires})
-    return jwt.encode(encode,SECRET_KEY,algorithm=ALGORITHM)
+    return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
-
-
-@router.post("/",status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_user(db: db_dependency, create_user_request: UserCreateRequest):
+    # Check if user already exists
+    existing_user = db.query(User).filter(User.username == create_user_request.username).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already registered"
+        )
+
     create_user_model = User(
-        username = create_user_request.username,
-        hashed_password = bcrypt_context.hash(create_user_request.password)
+        username=create_user_request.username,
+        hashed_password=bcrypt_context.hash(create_user_request.password)
     )
     db.add(create_user_model)
     db.commit()
 
-
-@router.post('/token',response_model=Token)
-async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],db: db_dependency):
-    user = authenticate_user(form_data.username, form_data.password,db)
+@router.post('/token', response_model=Token)
+async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency):
+    user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Could not validate user")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password"
+        )
     token = create_access_token(user.username, user.id, timedelta(minutes=20))
-
-    return{"access_token": token, "token_type": "bearer"}
+    return {"access_token": token, "token_type": "bearer"}
