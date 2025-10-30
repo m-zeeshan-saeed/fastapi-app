@@ -3,7 +3,6 @@
 import { createContext, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { error } from "console";
 
 const AuthContext = createContext();
 
@@ -29,17 +28,19 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", response.data.access_token);
       setUser(response.data);
       router.push("/");
-    } catch {
-      console.log("login Failed", error);
+    } catch (error) {
+      console.log("Login Failed:", error);
     }
   };
+
   const logout = () => {
     setUser(null);
     delete axios.defaults.headers.common["Authorization"];
     router.push("/login");
   };
+
   return (
-    <AuthContext.Provider value={(user, login, logout)}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

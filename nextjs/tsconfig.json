@@ -29,7 +29,9 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
-    "app/context/AuthContext.js"
+    "app/context/AuthContext.jsx",
+    "app/layout.tsx",
+    "app/page.jsx"
   ],
   "exclude": ["node_modules"]
 }

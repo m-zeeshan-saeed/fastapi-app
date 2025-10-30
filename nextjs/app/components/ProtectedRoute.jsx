@@ -1,8 +1,8 @@
 "use client";
 
 import { useContext, useEffect } from "react";
-import { useRouter } from "next-navigation";
-import AuthContext from "../AuthContext";
+import { useRouter } from "next/navigation";
+import AuthContext from "../context/AuthContext";
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useContext(AuthContext);
@@ -16,3 +16,5 @@ const ProtectedRoute = ({ children }) => {
 
   return user ? children : null;
 };
+
+export default ProtectedRoute;
