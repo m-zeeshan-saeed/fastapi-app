@@ -12,10 +12,13 @@ router = APIRouter(
 class WorkoutBase(BaseModel):
     name: str
     description: Optional[str] = None
+class Config:
+        from_attributes = True
 
 class WorkoutCreate(WorkoutBase):
     pass
-
+class Config:
+        from_attributes = True
 class WorkoutResponse(WorkoutBase):
     id: int
     user_id: int

@@ -15,9 +15,13 @@ router = APIRouter(
 class RoutineBase(BaseModel):
     name: str
     description: Optional[str] = None
+class Config:
+        from_attributes = True
 
 class RoutineCreate(RoutineBase):
     workouts: List[int] = []
+class Config:
+        from_attributes = True
 
 @router.get('/')
 def get_routines(db: db_dependency, user: user_dependency):
