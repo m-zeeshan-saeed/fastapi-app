@@ -15,15 +15,16 @@ const Home = () => {
   const [routineName, setRoutineName] = useState("");
   const [routineDescription, setRoutineDescription] = useState("");
   const [selectedWorkouts, setSelectedWorkouts] = useState([]);
-
-  const token = localStorage.getItem("token");
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   useEffect(() => {
+    if (!token) return;
+
     const fetchWorkoutsAndRoutines = async () => {
       try {
-        const token = localStorage.getItem("token");
         const [workoutsResponse, routinesResponse] = await Promise.all([
-          axios.get("http://localhost:8000/workouts/workouts", {
+          axios.get("http://localhost:8000/workouts/", {
             headers: { Authorization: `Bearer ${token}` },
           }),
           axios.get("http://localhost:8000/routines", {
@@ -39,10 +40,12 @@ const Home = () => {
     };
 
     fetchWorkoutsAndRoutines();
-  }, []);
+  }, [token]);
 
   const handleCreateWorkout = async (e) => {
     e.preventDefault();
+    if (!token) return alert("Token missing!");
+
     try {
       const response = await axios.post(
         "http://localhost:8000/workouts",
@@ -64,6 +67,8 @@ const Home = () => {
 
   const handleCreateRoutine = async (e) => {
     e.preventDefault();
+    if (!token) return alert("Token missing!");
+
     try {
       const response = await axios.post(
         "http://localhost:8000/routines",

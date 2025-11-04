@@ -1,11 +1,39 @@
 services:
-  fastapi:
-    build: .
+  backend:
+    build:
+      context: ./backend
     container_name: fastapi-app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-    volumes:
-      - .:/code
     ports:
       - "8000:8000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+    networks:
+      - app-network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: nextjs-app
+    ports:
+      - "3000:3000"
+    restart: always
+    depends_on:
+      - backend
     environment:
-      - PYTHONUNBUFFERED=1
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev # Ensure this is set
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
